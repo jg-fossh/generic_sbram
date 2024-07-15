@@ -1,0 +1,5 @@
+read_verilog "../../source/generic_sbram.v"
+prep -top generic_sbram
+splitnets
+write_json -compat-int generic_sbram_syn.json
+#show -prefix generic_sbram -notitle -nobg -long -colors 2 -width -format dot

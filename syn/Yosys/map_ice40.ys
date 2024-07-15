@@ -1,0 +1,2 @@
+read_verilog "../../source/generic_sbram.v"
+synth_ice40 -abc9 -dsp -json generic_sbram_syn.json -top generic_sbram
