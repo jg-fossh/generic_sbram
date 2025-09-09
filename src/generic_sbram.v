@@ -1,51 +1,51 @@
-/////////////////////////////////////////////////////////////////////////////////
-// 
-// Copyright (c) 2023, Jose R. Garcia (jg-fossh@protonmail.com)
-// All rights reserved.
-//
-// The following hardware description source code is subject to the terms of the
-//                  Open Hardware Description License, v. 1.0
-// If a copy of the afromentioned license was not distributed with this file you
-// can obtain one at http://juliusbaxter.net/ohdl/ohdl.txt
-//
-/////////////////////////////////////////////////////////////////////////////////
-// File name    : generic_sbram.v
-// Author       : Jose R Garcia (jg-fossh@protonmail.com)
-// Project Name : Generic SBRAM
-// Module Name  : generic_sbram
-// Description  : Infers Simple Dual Port BRAM. Most modern synthesis tools can
-//  infer this code as a memory structure. The P_SBRAM_MASK_MSB is used to
-//  determine if the RAM writes are bit or byte maskable. For now write mask
-//  set P_SBRAM_MASK_MSB to 0.
-//
-// Additional Comments:
-//
-//  ** These get inferred properly most of the time(depending on the tool version) **
-//
-//   1. Lattice iCE40 sysMEM (RAM4K)
-//      | Config | ADDR | DATA | MASK
-//      | 256x16 | 7:0  | 15:0 | 15:0
-//      | 512x8  | 8:0  | 7:0  | N/A
-//      | 1024x4 | 9:0  | 3:0  | N/A
-//      | 2048x2 | 10:0 | 1:0  | N/A
-//
-//   2. Anlogic Eagle BRAM9K
-//      | Config | ADDR | DATA | MASK
-//      | 512x16 | 8:0  | 15:0 | [3:0]
-//      | 512x18 | 8:0  | 17:0 | [3:0]
-//      | 1024x8 | 9:0  | 7:0  | [3:0]/[1:0]
-//      | 1024x9 | 9:0  | 8:0  | [3:0]/[1:0]
-//      | 2048x4 | 10:0 | 3:0  | N/A
-//      | 4096x2 | 11:0 | 1:0  | N/A
-//      | 8192x1 | 12:0 | 0    | N/A
-//
-//   3. Anlogic Eagle BRAM32K
-//      | Config  | ADDR | DATA | MASK
-//      | 2048x16 | 10:0 | 15:0 | N/A
-//      | 4096x8  | 11:0 | 7:0  | LSBs of ADDR (*not working*)
-//
-// For other technologies check specifics in their data sheet.
-/////////////////////////////////////////////////////////////////////////////////
+/*
+
+Copyright (c) 2023, Jose R. Garcia (jg-fossh@protonmail.com)
+All rights reserved.
+
+The following hardware description source code is subject to the terms of the
+                 Open Hardware Description License, v. 1.0
+If a copy of the afromentioned license was not distributed with this file you
+can obtain one at http://juliusbaxter.net/ohdl/ohdl.txt
+
+--------------------------------------------------------------------------------
+File name    : generic_sbram.v
+Author       : Jose R Garcia (jg-fossh@protonmail.com)
+Project Name : Generic SBRAM
+Module Name  : generic_sbram
+Description  : Infers Simple Dual Port BRAM. Most modern synthesis tools can
+ infer this code as a memory structure. The P_SBRAM_MASK_MSB is used to
+ determine if the RAM writes are bit or byte maskable. For now write mask
+ set P_SBRAM_MASK_MSB to 0.
+   
+Additional Comments:
+    
+ ** These get inferred properly most of the time(depending on the tool version) **
+
+  1. Lattice iCE40 sysMEM (RAM4K)
+     | Config | ADDR | DATA | MASK
+     | 256x16 | 7:0  | 15:0 | 15:0
+     | 512x8  | 8:0  | 7:0  | N/A
+     | 1024x4 | 9:0  | 3:0  | N/A
+     | 2048x2 | 10:0 | 1:0  | N/A
+        
+  2. Anlogic Eagle BRAM9K
+     | Config | ADDR | DATA | MASK
+     | 512x16 | 8:0  | 15:0 | [3:0]
+     | 512x18 | 8:0  | 17:0 | [3:0]
+     | 1024x8 | 9:0  | 7:0  | [3:0]/[1:0]
+     | 1024x9 | 9:0  | 8:0  | [3:0]/[1:0]
+     | 2048x4 | 10:0 | 3:0  | N/A
+     | 4096x2 | 11:0 | 1:0  | N/A
+     | 8192x1 | 12:0 | 0    | N/A
+     
+  3. Anlogic Eagle BRAM32K
+     | Config  | ADDR | DATA | MASK
+     | 2048x16 | 10:0 | 15:0 | N/A
+     | 4096x8  | 11:0 | 7:0  | LSBs of ADDR (*not working*)
+       
+ For other technologies check specifics in their data sheet.
+*/
 module generic_sbram #(
   // Compile time configurable parameters
   parameter integer P_SBRAM_DATA_MSB  = 15,
@@ -65,6 +65,7 @@ module generic_sbram #(
   output [P_SBRAM_DATA_MSB:0] o_rdata
 );
 
+/*verilator coverage_off*/
   ///////////////////////////////////////////////////////////////////////////////
   // Functions Declaration
   ///////////////////////////////////////////////////////////////////////////////
@@ -92,6 +93,7 @@ module generic_sbram #(
       end
     end
   endfunction // F_MASK_MODE_DETECT
+/*verilator coverage_on*/
 
   ///////////////////////////////////////////////////////////////////////////////
   // Internal Parameter Declarations
@@ -119,7 +121,7 @@ module generic_sbram #(
       if (P_SBRAM_HAS_FILE == 1) begin : Generate_Init_File_Read
         initial begin
           // Load initial states of the brams from a file.
-          $readmemb(P_SBRAM_INIT_FILE, r_ram);
+          $readmemh(P_SBRAM_INIT_FILE, r_ram);
         end
       end // Generate_Init_File_Read
 
@@ -160,7 +162,7 @@ module generic_sbram #(
       if (P_SBRAM_HAS_FILE == 1) begin : Generate_Init_File_Read
         initial begin
           // Load initial states of the brams from a file.
-          $readmemb(P_SBRAM_INIT_FILE, r_ram);
+          $readmemh(P_SBRAM_INIT_FILE, r_ram);
         end
       end // Generate_Init_File_Read
 
@@ -207,7 +209,7 @@ module generic_sbram #(
       if (P_SBRAM_HAS_FILE == 1) begin : Generate_Init_File_Read
         initial begin
           // Load initial states of the brams from a file.
-          $readmemb(P_SBRAM_INIT_FILE, r_ram);
+          $readmemh(P_SBRAM_INIT_FILE, r_ram);
         end
       end // Generate_Init_File_Read
 
