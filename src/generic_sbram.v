@@ -15,7 +15,7 @@ Project Name : Generic SBRAM
 Module Name  : generic_sbram
 Description  : Infers Simple Dual Port BRAM. Most modern synthesis tools can
  infer this code as a memory structure. The P_SBRAM_MASK_MSB is used to
- determine if the RAM writes are bit or byte maskable. For now write mask
+ determine if the RAM writes are bit or byte maskable. For no write mask
  set P_SBRAM_MASK_MSB to 0.
    
 Additional Comments:
@@ -82,7 +82,10 @@ module generic_sbram #(
     begin
       //
       F_MASK_MODE_DETECT = 0;
-      if (mask_msb == data_msb) begin
+      if (mask_msb == 0) begin
+        F_MASK_MODE_DETECT = 0;
+      end
+      else if (mask_msb == data_msb) begin
         F_MASK_MODE_DETECT = 1;
       end
       else if (mask_msb == ((data_msb+1)/8)-1) begin
